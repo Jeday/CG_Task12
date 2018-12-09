@@ -18,12 +18,9 @@
     <ClCompile Include="main.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="Lorry.cpp">
-      <Filter>Исходные файлы</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Lorry.h">
+    <ClInclude Include="OBJ_Loader.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
   </ItemGroup>

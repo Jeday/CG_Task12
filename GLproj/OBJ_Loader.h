@@ -742,7 +742,7 @@ namespace objl
 			for (int i = 0; i < int(sface.size()); i++)
 			{
 				// See What type the vertex is.
-				int vtype;
+				int vtype = -1;
 
 				algorithm::split(sface[i], svert, "/");
 

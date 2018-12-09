@@ -1,3 +1,8 @@
+
+
+
+#include <GL/glew.h>
+#include <GL/wglew.h>
 #include <GL/glut.h>
 #include <SOIL2.h>
 #include <cmath>
@@ -6,19 +11,15 @@
 #include "OBJ_Loader.h"
 
 int w = 0, h = 0;
-
-
+objl::Loader obj_loader;
+GLuint vertexbuffer, indexbuffer, texturecoordbuffer, normalbuffer;
 
 void Init(void)
 {
-	
 	glClearColor(0, 0, 0, 1.0f);
-
-	// рассчет освещения
 	glEnable(GL_LIGHTING);
 	glLightModelf(GL_LIGHT_MODEL_TWO_SIDE, 0);
 	glColorMaterial(GL_FRONT, GL_AMBIENT_AND_DIFFUSE);
-	//glColorMaterial(GL_FRONT);
 	glEnable(GL_COLOR_MATERIAL);
 
 	// автоматическое приведение нормалей к
@@ -26,6 +27,14 @@ void Init(void)
 	glEnable(GL_NORMALIZE);
 
 	
+
+	bool succes = obj_loader.LoadFile("torus.obj");
+	if (succes) {
+		glGenBuffers(1, &vertexbuffer);
+
+	}
+
+
 }
 
 void Reshape(int x, int y)
@@ -39,6 +48,8 @@ void Reshape(int x, int y)
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 	gluPerspective(90, (GLdouble)w / h, 0.1, 50);
+	glMatrixMode(GL_MODELVIEW);
+	gluLookAt(-10, 0, 0, 0, 0, 0, 0, 0, 1);
 
 }
 
@@ -115,15 +126,26 @@ int main(int argc, char **argv)
 {
 	glutInit(&argc, argv);
 	
+
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH);
 	glutInitWindowPosition(100, 100);
 	glutInitWindowSize(800, 600);
+
 	glutCreateWindow("OpenGL");
 	glEnable(GL_DEPTH_TEST);
+
+	
 	glutDisplayFunc(Update);
 	glutReshapeFunc(Reshape);
 	glutKeyboardFunc(keyboard);
 	glutSpecialFunc(specialKeys);
+	GLenum err = glewInit();
+	if (GLEW_OK != err)
+	{
+		/* Problem: glewInit failed, something is seriously wrong. */
+		std::cout << glewGetErrorString(err) << std::endl;
+
+	}
 	Init();
 	glutMainLoop();
 	return 0;         
