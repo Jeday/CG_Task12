@@ -71,6 +71,7 @@ artifacts/
 *.scc
 *.png
 *.jpg
+*.tga
 
 # Chutzpah Test files
 _Chutzpah*
