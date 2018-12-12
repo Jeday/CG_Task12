@@ -10,6 +10,7 @@
 #include <iostream>
 #include "OBJ_Loader.h"
 
+
 int w = 0, h = 0;
 objl::Loader obj_loader;
 GLuint VAO,vertexbuffer, indexbuffer, texturecoordbuffer, normalbuffer;
@@ -20,18 +21,20 @@ GLfloat xangle = 0, yangle = 0;
 GLfloat langle = 0;
 GLfloat langle2 = 0;
 GLfloat mx = 0, my = 0 , mz = 0;
+bool use_texture = true;
+bool use_lighting = true;
 void Init(void)
 {
 	glClearColor(0, 0, 0, 1.0f);
 
 	glEnable(GL_COLOR_MATERIAL);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-	glEnable(GL_LIGHTING);
+	
 	glLightModelf(GL_LIGHT_MODEL_TWO_SIDE, 0);
 	glColorMaterial(GL_FRONT, GL_AMBIENT_AND_DIFFUSE);
 	glEnable(GL_COLOR_MATERIAL);
 	glEnable(GL_LIGHT1);
-	texture= SOIL_load_OGL_texture("cat_diff.tga", SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, SOIL_FLAG_NTSC_SAFE_RGB | SOIL_FLAG_MULTIPLY_ALPHA | SOIL_FLAG_INVERT_Y);
+	texture= SOIL_load_OGL_texture("cat_norm.tga", SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, SOIL_FLAG_NTSC_SAFE_RGB | SOIL_FLAG_MULTIPLY_ALPHA | SOIL_FLAG_INVERT_Y);
 	bool succes = obj_loader.LoadFile("cat.obj");
 	if (succes) {
 		size_t sz = obj_loader.LoadedVertices.size() * 11;
@@ -81,10 +84,10 @@ void Reshape(int x, int y)
 	glViewport(0, 0, w, h);
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	gluPerspective(90, (GLdouble)w / h, 0.05, 100);
+	gluPerspective(90, (GLdouble)w / h, 0.05, 300);
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
-	gluLookAt(-3, 0, 0, 0, 0, 0, 0, 0, 1);
+	gluLookAt(-5, 0, 0, 0, 0, 0, 0, 0, 1);
 
 }
 
@@ -103,10 +106,11 @@ void Update(void) {
 	glRotatef(yangle, 1, 0, 0);
 	
 	glEnableClientState(GL_NORMAL_ARRAY);
-	//glEnableClientState(GL_COLOR_ARRAY);
 	glEnableClientState(GL_VERTEX_ARRAY);
-	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-	//glColor3f(0, 0, 1);
+	if(use_texture)
+		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+	else
+		glEnableClientState(GL_COLOR_ARRAY);
 	glBindTexture(GL_TEXTURE_2D, texture);
 	glEnable(GL_TEXTURE_2D);
 	glDrawElements(GL_TRIANGLES,obj_loader.LoadedVertices.size(), GL_UNSIGNED_SHORT, indeces);
@@ -120,9 +124,9 @@ void Update(void) {
 
 	glRotatef(langle, 0, 0, 1);
 	glRotatef(langle2, 1, 0, 0);
-	GLfloat light_diffuse[4]{ 1,1,1,1 };
+	GLfloat light_diffuse[4]{ 0.7f,0.7f,0,1 };
 	GLfloat light_ambient[4]{ 0.1f,0.1f,0.1f,1 };
-	GLfloat light_position[4]{ 0,10,10,1 };
+	GLfloat light_position[4]{ 0,200,200,1 };
 	GLfloat light_spot_direction[3];
 
 
@@ -144,10 +148,17 @@ void Update(void) {
 	//glPopAttrib();
 	glPopMatrix();
 
-
+	glDisableClientState(GL_NORMAL_ARRAY);
+	glDisableClientState(GL_VERTEX_ARRAY);
+	if (use_texture)
+		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+	else
+		glDisableClientState(GL_COLOR_ARRAY);
 
 	glFlush();
 	glutSwapBuffers();
+	
+
 }
 
 void keyboard(unsigned char key, int x, int y)	
@@ -196,8 +207,15 @@ void keyboard(unsigned char key, int x, int y)
 void specialKeys(int key, int x, int y) {
 	switch (key)
 	{ 
-	case GLUT_KEY_PAGE_UP:
-		
+	case GLUT_KEY_F1:
+		use_texture = !use_texture;
+		break;
+	case GLUT_KEY_F2:
+		if (use_lighting)
+			glDisable(GL_LIGHTING);
+		else
+			glEnable(GL_LIGHTING);
+		use_lighting = !use_lighting;
 		break;
 	case GLUT_KEY_PAGE_DOWN:
 		
@@ -214,7 +232,7 @@ void specialKeys(int key, int x, int y) {
 		langle2 += 5;
 		break;
 
-	case GLUT_KEY_RIGHT:
+	case GLUT_KEY_RIGHT:	
 		langle2 -= 5;
 		break;
 	default:
